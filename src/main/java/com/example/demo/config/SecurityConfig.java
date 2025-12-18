@@ -23,4 +23,6 @@ public class SecurityConfig {
                 .anyRequest().permitAll()
             );
 
-        return h
+        return http.build();
+    }
+}
