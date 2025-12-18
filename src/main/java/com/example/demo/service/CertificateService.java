@@ -4,6 +4,8 @@ import com.example.demo.entity.Certificate;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.CertificateRepository;
 import org.springframework.stereotype.Service;
+import com.example.demo.exception.ResourceNotFoundException;
+
 
 import java.util.List;
 
