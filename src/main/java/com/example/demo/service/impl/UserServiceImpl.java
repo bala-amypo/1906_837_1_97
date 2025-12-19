@@ -17,7 +17,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User register(User user) {
 
-        if (repository.findByUsername(user.getUsername()).isPresent()) {
+        if (repository.findByEmail(user.getEmail()).isPresent()) {
             throw new RuntimeException("User already exists");
         }
 
@@ -25,8 +25,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findByUsername(String username) {
-        return repository.findByUsername(username)
+    public User findByEmail(String email) {
+        return repository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 }
