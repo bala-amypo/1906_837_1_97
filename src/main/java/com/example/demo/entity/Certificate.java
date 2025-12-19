@@ -4,9 +4,11 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,16 +18,18 @@ public class Certificate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String verificationCode;
+
+    private String qrCodeUrl;
+
+    private LocalDate issuedDate;
+
     @ManyToOne
     private Student student;
 
     @ManyToOne
     private CertificateTemplate template;
 
-    private LocalDate issuedDate;
-
-    private String qrCodeUrl;
-
-    @Column(unique = true)
-    private String verificationCode;
+    @OneToMany(mappedBy = "certificate", cascade = CascadeType.ALL)
+    private List<VerificationLog> verificationLogs;
 }

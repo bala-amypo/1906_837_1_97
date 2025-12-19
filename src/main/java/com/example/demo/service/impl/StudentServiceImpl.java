@@ -19,9 +19,8 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public Student addStudent(Student student) {
 
-        if (repository.findByEmail(student.getEmail()).isPresent()
-                || repository.findByRollNumber(student.getRollNumber()).isPresent()) {
-            throw new RuntimeException("Student email exists");
+        if (repository.findByEmail(student.getEmail()).isPresent()) {
+            throw new RuntimeException("Student already exists");
         }
 
         return repository.save(student);
@@ -30,11 +29,5 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public List<Student> getAllStudents() {
         return repository.findAll();
-    }
-
-    @Override
-    public Student findById(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
     }
 }
