@@ -6,12 +6,10 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "verification_logs")
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class VerificationLog {
 
     @Id
@@ -19,12 +17,11 @@ public class VerificationLog {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "certificate_id")
     private Certificate certificate;
 
     private LocalDateTime verifiedAt;
 
-    private String status;
+    private String status; // SUCCESS / FAILED
 
     private String ipAddress;
 }

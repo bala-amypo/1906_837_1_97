@@ -6,12 +6,10 @@ import lombok.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "certificates")
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Certificate {
 
     @Id
@@ -19,16 +17,13 @@ public class Certificate {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "student_id")
     private Student student;
 
     @ManyToOne
-    @JoinColumn(name = "template_id")
     private CertificateTemplate template;
 
     private LocalDate issuedDate;
 
-    @Column(length = 1000)
     private String qrCodeUrl;
 
     @Column(unique = true)
