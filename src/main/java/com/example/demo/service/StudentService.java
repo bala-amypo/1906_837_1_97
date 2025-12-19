@@ -15,11 +15,13 @@ public class StudentService {
         this.repository = repository;
     }
 
-    public Student save(Student student) {
+    // REQUIRED by StudentController
+    public Student addStudent(Student student) {
         return repository.save(student);
     }
 
-    public List<Student> getAll() {
+    // REQUIRED by StudentController
+    public List<Student> getAllStudents() {
         return repository.findAll();
     }
 }
