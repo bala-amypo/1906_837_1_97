@@ -17,12 +17,12 @@ public class StudentController {
     }
 
     @PostMapping
-    public Student add(@RequestBody Student s) {
-        return service.addStudent(s);
+    public Student addStudent(@RequestBody Student student) {
+        return service.addStudent(student);
     }
 
     @GetMapping
-    public List<Student> list() {
+    public List<Student> getAllStudents() {
         return service.getAllStudents();
     }
 }

@@ -16,17 +16,21 @@ public class CertificateService {
         this.repository = repository;
     }
 
-    public Certificate save(Certificate certificate) {
+    // Create / Save certificate
+    public Certificate addCertificate(Certificate certificate) {
         return repository.save(certificate);
     }
 
-    public List<Certificate> getAll() {
+    // Get all certificates
+    public List<Certificate> getAllCertificates() {
         return repository.findAll();
     }
 
-    public Certificate getById(Long id) {
+    // Get certificate by ID
+    public Certificate getCertificateById(Long id) {
         return repository.findById(id)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Certificate not found"));
+                        new ResourceNotFoundException("Certificate not found with id: " + id)
+                );
     }
 }
