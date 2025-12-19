@@ -21,6 +21,9 @@ public class VerificationLog {
 
     private LocalDateTime verifiedAt;
 
+    
+    private String status;
+
     @ManyToOne
     @JoinColumn(name = "certificate_id")
     private Certificate certificate;
