@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.List;
 
 @Configuration
-public class OpenApiConfig {
+public class SwaggerConfig { // RENAME THIS FROM OpenApiConfig TO SwaggerConfig
 
     @Bean
     public OpenAPI customOpenAPI() {
@@ -20,12 +20,13 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("Digital Certificate Generator API")
                         .version("1.0")
-                        .description("API documentation for Digital Certificate Generator")
+                        .description("Digital Certificate Generator API with JWT Authentication")
                 )
                 .servers(List.of(
-                        new Server().url("https://9444.pro604cr.amypo.ai/") // Standard local/relative path for testing
+                        // It is better to use "/" for relative pathing in test environments
+                        new Server().url("https://9444.pro604cr.amypo.ai/") 
                 ))
-                // THE FOLLOWING CODE ADDS THE REQUIRED JWT SECURITY SCHEME
+                // Section 9.1 Requirement: Global JWT Bearer security scheme
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(new Components()
                         .addSecuritySchemes("bearerAuth", new SecurityScheme()
