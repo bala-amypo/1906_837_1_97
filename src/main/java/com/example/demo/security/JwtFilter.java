@@ -10,9 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -20,43 +18,28 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
 
-    // Constructor Injection (Required by Section 6)
-    public JwtFilter(JwtUtil jwtUtil) {
-        this.jwtUtil = jwtUtil;
-    }
+    public JwtFilter(JwtUtil jwtUtil) { this.jwtUtil = jwtUtil; }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, 
-                                    HttpServletResponse response, 
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
         
         String authHeader = request.getHeader("Authorization");
 
-        // 1. Extract JWT from header (starts with "Bearer ")
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
-
-            // 2. Validate the token
             if (jwtUtil.validateToken(token)) {
                 Claims claims = jwtUtil.parseToken(token);
                 String email = claims.getSubject();
                 String role = claims.get("role", String.class);
 
-                if (email != null) {
-                    // 3. Create Authentication object and set it in SecurityContext
-                    // Note: We prepend ROLE_ to the role claim for Spring Security compatibility
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            email, 
-                            null, 
-                            List.of(new SimpleGrantedAuthority("ROLE_" + role))
-                    );
-                    
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                }
+                // Add "ROLE_" prefix because Spring Security's hasRole() expects it
+                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                        email, null, List.of(new SimpleGrantedAuthority("ROLE_" + role)));
+                
+                SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }
-
-        // 4. Continue filter chain (essential if token is missing/invalid)
         filterChain.doFilter(request, response);
     }
 }
