@@ -5,13 +5,11 @@ import lombok.*;
 
 @Entity
 @Table(name = "certificate_templates")
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class CertificateTemplate {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,6 +18,8 @@ public class CertificateTemplate {
     private String templateName;
 
     private String backgroundUrl;
+
     private String fontStyle;
+
     private String signatureName;
 }
