@@ -23,7 +23,7 @@ public class OpenApiConfig {
                         .description("API documentation for Digital Certificate Generator")
                 )
                 .servers(List.of(
-                        new Server().url("/") // Standard local/relative path for testing
+                        new Server().url("https://9444.pro604cr.amypo.ai/") // Standard local/relative path for testing
                 ))
                 // THE FOLLOWING CODE ADDS THE REQUIRED JWT SECURITY SCHEME
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
