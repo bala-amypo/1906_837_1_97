@@ -24,7 +24,7 @@ public class SwaggerConfig { // RENAME THIS FROM OpenApiConfig TO SwaggerConfig
                 )
                 .servers(List.of(
                         // It is better to use "/" for relative pathing in test environments
-                        new Server().url("") 
+                        new Server().url("https://9444.pro604cr.amypo.ai/") 
                 ))
                 // Section 9.1 Requirement: Global JWT Bearer security scheme
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
@@ -36,3 +36,4 @@ public class SwaggerConfig { // RENAME THIS FROM OpenApiConfig TO SwaggerConfig
                                 .bearerFormat("JWT")));
     }
 }
+
