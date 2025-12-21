@@ -27,8 +27,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
-            throws Exception {
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
@@ -41,22 +41,24 @@ public class SecurityConfig {
                     session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
             .authorizeHttpRequests(auth -> auth
-                // ✅ AUTH
+                // ⭐ STEP 1 FIX (VERY IMPORTANT)
+                .requestMatchers("/", "/error").permitAll()
+
+                // ⭐ STEP 2 FIX
                 .requestMatchers("/auth/**").permitAll()
 
-                // ✅ SWAGGER (ALL REQUIRED PATHS)
+                // ⭐ STEP 3 FIX
                 .requestMatchers(
                         "/swagger-ui/**",
-                        "/v3/api-docs/**",
                         "/swagger-ui.html",
-                        "/swagger-ui/index.html"
+                        "/swagger-ui/index.html",
+                        "/v3/api-docs/**"
                 ).permitAll()
 
-                // ❌ EVERYTHING ELSE NEEDS JWT
+                // ⭐ STEP 4 FIX
                 .anyRequest().authenticated()
             );
 
-        // ✅ JWT FILTER
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
