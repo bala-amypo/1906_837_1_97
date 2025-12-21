@@ -17,7 +17,7 @@ public class JwtUtil {
 
     public JwtUtil() {
         this.key = Keys.hmacShaKeyFor(
-            "mysecretkeymysecretkeymysecretkey12".getBytes());
+                "mysecretkeymysecretkeymysecretkey12".getBytes());
     }
 
     public String generateToken(Map<String, Object> claims, String subject) {
@@ -33,9 +33,9 @@ public class JwtUtil {
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token);
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token);
             return true;
         } catch (Exception e) {
             return false;
