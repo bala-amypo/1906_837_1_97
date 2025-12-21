@@ -7,14 +7,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
 @RequestMapping("/verify")
-@Tag(name = "Verification", description = "Certificate Verification and Logs")
+@Tag(name = "Verification")
 public class VerificationController {
-
     private final VerificationService verificationService;
 
     public VerificationController(VerificationService verificationService) {
@@ -22,16 +20,16 @@ public class VerificationController {
     }
 
     @PostMapping("/{verificationCode}")
-    @Operation(summary = "Verify a certificate code")
-    public ResponseEntity<VerificationLog> verifyCertificate(@PathVariable String verificationCode, HttpServletRequest request) {
-        // PDF Section 7.5 Rule 1.2: Read client IP from request
+    @Operation(summary = "Verify certificate and log IP")
+    public ResponseEntity<VerificationLog> verify(@PathVariable String verificationCode, HttpServletRequest request) {
+        // MANDATORY: Use request.getRemoteAddr() to capture client IP
         String clientIp = request.getRemoteAddr();
         return ResponseEntity.ok(verificationService.verifyCertificate(verificationCode, clientIp));
     }
 
     @GetMapping("/logs/{certificateId}")
-    @Operation(summary = "Get verification logs for a certificate")
-    public ResponseEntity<List<VerificationLog>> getLogsByCertificate(@PathVariable Long certificateId) {
+    @Operation(summary = "Get logs for a certificate")
+    public ResponseEntity<List<VerificationLog>> getLogs(@PathVariable Long certificateId) {
         return ResponseEntity.ok(verificationService.getLogsByCertificate(certificateId));
     }
 }
