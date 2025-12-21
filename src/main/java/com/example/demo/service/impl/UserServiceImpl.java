@@ -18,15 +18,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User register(User user) {
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already exists");
-        }
-        // Section 2.1 Rule: Default role to "STAFF" if null
         if (user.getRole() == null || user.getRole().isEmpty()) {
             user.setRole("STAFF");
         }
-        // Section 2.1 Rule: BCrypt hash password
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new RuntimeException("Email already exists");
+        }
         return userRepository.save(user);
     }
 
