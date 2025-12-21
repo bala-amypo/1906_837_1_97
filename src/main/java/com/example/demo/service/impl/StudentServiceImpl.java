@@ -17,10 +17,9 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Student addStudent(Student student) {
-        // Section 6.2 Rule: Check both email and rollNumber
         if (studentRepository.findByEmail(student.getEmail()).isPresent() || 
             studentRepository.findByRollNumber(student.getRollNumber()).isPresent()) {
-            throw new RuntimeException("Student email exists"); // EXACT STRING REQUIRED
+            throw new RuntimeException("Student email exists");
         }
         return studentRepository.save(student);
     }
@@ -32,7 +31,7 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Student findById(Long id) {
-        return studentRepository.findById(id).orElseThrow(() -> 
-            new ResourceNotFoundException("Student not found")); // EXACT STRING REQUIRED
+        return studentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
     }
 }

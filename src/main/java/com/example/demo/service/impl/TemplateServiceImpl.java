@@ -18,7 +18,7 @@ public class TemplateServiceImpl implements TemplateService {
     @Override
     public CertificateTemplate addTemplate(CertificateTemplate template) {
         if (templateRepository.findByTemplateName(template.getTemplateName()).isPresent()) {
-            throw new RuntimeException("Template name exists"); // EXACT STRING REQUIRED
+            throw new RuntimeException("Template name exists");
         }
         return templateRepository.save(template);
     }
@@ -30,7 +30,7 @@ public class TemplateServiceImpl implements TemplateService {
 
     @Override
     public CertificateTemplate findById(Long id) {
-        return templateRepository.findById(id).orElseThrow(() -> 
-            new ResourceNotFoundException("Template not found"));
+        return templateRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Template not found"));
     }
 }
