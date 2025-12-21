@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.List;
 
 @Configuration
-public class SwaggerConfig { // RENAME THIS FROM OpenApiConfig TO SwaggerConfig
+public class SwaggerConfig { // PDF Requirement: Rename from OpenApiConfig to SwaggerConfig
 
     @Bean
     public OpenAPI customOpenAPI() {
@@ -20,13 +20,11 @@ public class SwaggerConfig { // RENAME THIS FROM OpenApiConfig TO SwaggerConfig
                 .info(new Info()
                         .title("Digital Certificate Generator API")
                         .version("1.0")
-                        .description("Digital Certificate Generator API with JWT Authentication")
-                )
+                        .description("API Documentation with JWT Authentication"))
                 .servers(List.of(
-                        // It is better to use "/" for relative pathing in test environments
-                        new Server().url("https://9444.pro604cr.amypo.ai/") 
+                        new Server().url("https://9444.pro604cr.amypo.ai/") // Use "/" for relative pathing in test environments
                 ))
-                // Section 9.1 Requirement: Global JWT Bearer security scheme
+                // SECTION 9.1 REQUIREMENT: Add JWT bearer security scheme
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(new Components()
                         .addSecuritySchemes("bearerAuth", new SecurityScheme()
@@ -36,4 +34,3 @@ public class SwaggerConfig { // RENAME THIS FROM OpenApiConfig TO SwaggerConfig
                                 .bearerFormat("JWT")));
     }
 }
-
