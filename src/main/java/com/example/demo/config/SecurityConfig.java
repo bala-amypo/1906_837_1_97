@@ -17,7 +17,6 @@ public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
 
-    // Use Constructor Injection as per Section 6 rules
     public SecurityConfig(JwtFilter jwtFilter) {
         this.jwtFilter = jwtFilter;
     }
@@ -28,35 +27,38 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
+            throws Exception {
         return config.getAuthenticationManager();
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
         http
-            // 1. Disable CSRF for REST APIs (Section 8.3)
-            .csrf(csrf -> csrf.disable()) 
-            
-            // 2. Set Session to Stateless (Section 8.3)
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            
-            // 3. THE WHITELIST (Section 8.3 & 9.1)
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session ->
+                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
             .authorizeHttpRequests(auth -> auth
-                // Allow Root path (to fix your "Access Denied" screen)
-                .requestMatchers("/").permitAll()
-                // Allow Auth endpoints (Register/Login)
+                // ✅ AUTH
                 .requestMatchers("/auth/**").permitAll()
-                // Allow all Swagger and API Doc paths
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
-                // Everything else MUST be authenticated with JWT
+
+                // ✅ SWAGGER (ALL REQUIRED PATHS)
+                .requestMatchers(
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**",
+                        "/swagger-ui.html",
+                        "/swagger-ui/index.html"
+                ).permitAll()
+
+                // ❌ EVERYTHING ELSE NEEDS JWT
                 .anyRequest().authenticated()
             );
 
-        // 4. Register the JwtFilter (Section 8.3)
+        // ✅ JWT FILTER
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 }
-

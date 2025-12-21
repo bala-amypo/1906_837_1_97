@@ -5,11 +5,8 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.List;
 
 @Configuration
 public class SwaggerConfig {
@@ -22,16 +19,15 @@ public class SwaggerConfig {
                         .version("1.0")
                         .description("Digital Certificate Generator API with JWT Authentication")
                 )
-                .servers(List.of(
-                        new Server().url("https://9444.pro604cr.amypo.ai/") // Relative path for dynamic environment support
-                ))
-                // MANDATORY FOR TEST CASES: Global Security Requirement
+                // ✅ REQUIRED BY TEST CASES
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(new Components()
-                        .addSecuritySchemes("bearerAuth", new SecurityScheme()
-                                .name("bearerAuth")
-                                .type(SecurityScheme.Type.HTTP)
-                                .scheme("bearer")
-                                .bearerFormat("JWT")));
+                        .addSecuritySchemes("bearerAuth",
+                                new SecurityScheme()
+                                        .type(SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")
+                        )
+                );
     }
 }
