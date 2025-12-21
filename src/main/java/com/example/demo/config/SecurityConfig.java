@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -21,26 +22,48 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-            // REST API → no CSRF
+            // REST API → disable CSRF
             .csrf(csrf -> csrf.disable())
 
             // JWT → stateless
             .sessionManagement(session ->
-                session.sessionCreationPolicy(
-                    org.springframework.security.config.http.SessionCreationPolicy.STATELESS))
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-            // URL access rules
+            // ⭐ IMPORTANT FIX → allow CORS preflight
+            .cors(cors -> {})
+
             .authorizeHttpRequests(auth -> auth
-                // allow browser & swagger
+
+                // allow browser & error page
+                .requestMatchers("/", "/error").permitAll()
+
+                // auth endpoints
+                .requestMatchers("/auth/**").permitAll()
+
+                // swagger
                 .requestMatchers(
-                        "/",                    // fixes browser 403
-                        "/auth/**",              // login & register
-                        "/swagger-ui/**",        // swagger ui
-                        "/v3/api-docs/**"        // openapi json
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/swagger-ui/index.html",
+                        "/v3/api-docs/**"
                 ).permitAll()
+
+                // allow OPTIONS for Swagger POST
+                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
 
                 // everything else needs JWT
                 .anyRequest().authenticated()
@@ -50,18 +73,5 @@ public class SecurityConfig {
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-    }
-
-    // password encoder (PDF required)
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    // auth manager (PDF required)
-    @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
     }
 }
