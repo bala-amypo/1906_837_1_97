@@ -22,7 +22,7 @@ public class SwaggerConfig { // PDF Requirement: Rename from OpenApiConfig to Sw
                         .version("1.0")
                         .description("API Documentation with JWT Authentication"))
                 .servers(List.of(
-                        new Server().url("https://9444.pro604cr.amypo.ai/") // Use "/" for relative pathing in test environments
+                        new Server().url("https://9444.pro604cr.amypo.ai/`") // Use "/" for relative pathing in test environments
                 ))
                 // SECTION 9.1 REQUIREMENT: Add JWT bearer security scheme
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
