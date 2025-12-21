@@ -1,69 +1,81 @@
 package com.example.demo.config;
 
-import lombok.RequiredArgsConstructor;
+import com.example.demo.security.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthFilter;
-    private final AuthenticationProvider authenticationProvider;
+    private final JwtFilter jwtFilter;
+
+    public SecurityConfig(JwtFilter jwtFilter) {
+        this.jwtFilter = jwtFilter;
+    }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-            // ❌ Disable CSRF (needed for Swagger & REST APIs)
+            // Disable CSRF
             .csrf(csrf -> csrf.disable())
 
-            // 🔐 Authorization rules
+            // Stateless session (JWT)
+            .sessionManagement(session ->
+                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
             .authorizeHttpRequests(auth -> auth
 
-                // ✅ Swagger UI & OpenAPI
+                // ✅ ROOT & ERROR (WHITELABEL FIX)
+                .requestMatchers("/", "/error").permitAll()
+
+                // ✅ AUTH APIs
+                .requestMatchers("/auth/**").permitAll()
+
+                // ✅ SWAGGER
                 .requestMatchers(
                         "/swagger-ui/**",
                         "/swagger-ui.html",
                         "/v3/api-docs/**"
                 ).permitAll()
 
-                // ✅ Auth APIs (login & register)
-                .requestMatchers("/auth/**").permitAll()
-
-                // ✅ Public verification APIs
-                .requestMatchers("/verify/**").permitAll()
-
-                // 🔐 Template APIs (FIXED)
+                // ✅ TEMPLATE APIs (403 FIX)
                 .requestMatchers("/templates/**").authenticated()
 
-                // 🔐 Student APIs
+                // ✅ STUDENT APIs
                 .requestMatchers("/students/**").authenticated()
 
-                // 🔐 Certificate APIs
+                // ✅ CERTIFICATE APIs
                 .requestMatchers("/certificates/**").authenticated()
 
-                // 🔐 Everything else
+                // ✅ VERIFICATION APIs (PDF usually allows public)
+                .requestMatchers("/verify/**").permitAll()
+
+                // Everything else
                 .anyRequest().authenticated()
-            )
+            );
 
-            // ✅ Stateless JWT session
-            .sessionManagement(session ->
-                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-
-            // ✅ Authentication provider
-            .authenticationProvider(authenticationProvider)
-
-            // ✅ JWT filter
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        // ✅ JWT FILTER
+        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
