@@ -16,7 +16,7 @@ public class SwaggerConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info().title("Digital Certificate Generator API").version("1.0"))
-                .servers(List.of(new Server().url("/")))
+                .servers(List.of(new Server().url("https://9444.pro604cr.amypo.ai/")))
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(new Components().addSecuritySchemes("bearerAuth", new SecurityScheme()
                         .name("bearerAuth").type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT")));
