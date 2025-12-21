@@ -13,17 +13,17 @@ import java.util.Map;
 public class JwtUtil {
 
     private final SecretKey key;
-    private final long expirationMs = 86400000; // 1 day
+    private final long expirationMs = 86400000;
 
     public JwtUtil() {
         this.key = Keys.hmacShaKeyFor(
-                "mysecretkeymysecretkeymysecretkey12".getBytes());
+            "mysecretkeymysecretkeymysecretkey12".getBytes());
     }
 
     public String generateToken(Map<String, Object> claims, String subject) {
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(subject)
+                .setSubject(subject) // email
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(key)
@@ -42,14 +42,12 @@ public class JwtUtil {
         }
     }
 
-    // ✅ REQUIRED METHOD (THIS FIXES YOUR ERROR)
     public String getEmailFromToken(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-
         return claims.getSubject();
     }
 }
