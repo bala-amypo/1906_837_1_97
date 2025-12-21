@@ -17,12 +17,14 @@ public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
 
+    // Requirement Section 6: All services/configs must use constructor injection
     public SecurityConfig(JwtFilter jwtFilter) {
         this.jwtFilter = jwtFilter;
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
+        // Requirement Section 8.3: Define BCryptPasswordEncoder bean
         return new BCryptPasswordEncoder();
     }
 
@@ -34,14 +36,23 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // Critical for REST APIs
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Requirement 8.3
+            // 1. Requirement Section 8.3: Disable CSRF (Critical to fix 403)
+            .csrf(csrf -> csrf.disable())
+            
+            // 2. Requirement Section 8.3: Set session management to stateless
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            
+            // 3. Requirement Section 8.3: Configure HTTP security permissions
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui/index.html", "/").permitAll()
+                // Allow public access to Auth and Swagger
+                .requestMatchers("/", "/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                // Require authentication for everything else (Students, Templates, Certificates, Verification)
                 .anyRequest().authenticated()
             );
 
+        // 4. Requirement Section 8.3: Register JwtFilter before UsernamePasswordAuthenticationFilter
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 }
