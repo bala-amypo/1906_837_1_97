@@ -17,64 +17,38 @@ public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
 
-    // Constructor injection (MANDATORY as per PDF)
     public SecurityConfig(JwtFilter jwtFilter) {
         this.jwtFilter = jwtFilter;
     }
 
-    // Password encoder required for AuthController
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+        http
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session ->
+                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                    .requestMatchers(
+                            "/auth/**",
+                            "/swagger-ui/**",
+                            "/v3/api-docs/**"
+                    ).permitAll()
+                    .anyRequest().authenticated()
+            )
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
     }
 
-    // Authentication manager required for Spring Security context
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
 
-    // 🔐 MAIN SECURITY CONFIGURATION
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-        http
-            // Disable CSRF (REST APIs only)
-            .csrf(csrf -> csrf.disable())
-
-            // Stateless session (JWT based)
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-
-            // Authorization rules (AMYPO TEST COMPATIBLE)
-            .authorizeHttpRequests(auth -> auth
-
-                // Root & error page
-                .requestMatchers("/", "/error").permitAll()
-
-                // Authentication APIs
-                .requestMatchers("/auth/**").permitAll()
-
-                // Verification APIs (tests call without JWT)
-                .requestMatchers("/verify/**").permitAll()
-
-                // Swagger APIs
-                .requestMatchers(
-                        "/swagger-ui/**",
-                        "/swagger-ui.html",
-                        "/swagger-ui/index.html",
-                        "/v3/api-docs/**"
-                ).permitAll()
-
-                // Everything else requires JWT
-                .anyRequest().authenticated()
-            )
-
-            // JWT filter before UsernamePasswordAuthenticationFilter
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

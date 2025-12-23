@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class VerificationServiceImpl implements VerificationService {
@@ -18,49 +16,35 @@ public class VerificationServiceImpl implements VerificationService {
     private final VerificationLogRepository logRepository;
     private final CertificateRepository certificateRepository;
 
-    // ✅ Constructor injection only
     public VerificationServiceImpl(
             VerificationLogRepository logRepository,
-            CertificateRepository certificateRepository
-    ) {
+            CertificateRepository certificateRepository) {
         this.logRepository = logRepository;
         this.certificateRepository = certificateRepository;
     }
 
-    // ================= VERIFY CERTIFICATE =================
     @Override
     public VerificationLog verifyCertificate(String code, String ipAddress) {
 
-        Optional<Certificate> certOpt =
-                certificateRepository.findByVerificationCode(code);
+        Certificate certificate =
+                certificateRepository.findByVerificationCode(code).orElse(null);
 
-        VerificationLog log = VerificationLog.builder()
-                .verifiedAt(LocalDateTime.now()) // MUST NOT be null
-                .ipAddress(ipAddress)
-                .build();
+        VerificationLog log = new VerificationLog();
+        log.setVerifiedAt(LocalDateTime.now());
+        log.setIpAddress(ipAddress);
 
-        if (certOpt.isPresent()) {
-            log.setCertificate(certOpt.get());
+        if (certificate != null) {
+            log.setCertificate(certificate);
             log.setStatus("SUCCESS");
         } else {
-            // ❗ DO NOT throw exception (required by Helper PDF)
             log.setStatus("FAILED");
         }
 
         return logRepository.save(log);
     }
 
-    // ================= GET LOGS BY CERTIFICATE =================
     @Override
     public List<VerificationLog> getLogsByCertificate(Long certificateId) {
-
-        // Must return empty list if no logs found (NO exception)
-        return logRepository.findAll()
-                .stream()
-                .filter(log ->
-                        log.getCertificate() != null &&
-                        log.getCertificate().getId().equals(certificateId)
-                )
-                .collect(Collectors.toList());
+        return logRepository.findByCertificateId(certificateId);
     }
 }
