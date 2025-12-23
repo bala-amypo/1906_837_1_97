@@ -20,7 +20,7 @@
     <description>Digital Certificate Generator</description>
 
     <properties>
-        <java.version>1</java.version>
+        <java.version>9</java.version>
     </properties>
 
     <dependencies>
