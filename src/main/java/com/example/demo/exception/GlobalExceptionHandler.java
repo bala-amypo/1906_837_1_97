@@ -8,17 +8,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Requirement Section 5.3: Catch ResourceNotFoundException and return 404
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<String> handleNotFound(ResourceNotFoundException ex) {
-        // Return only the message string to pass the "message fragment" tests
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    // Requirement Section 5.3: Catch validation/business-rule exceptions and return 400
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<String> handleBusinessRules(RuntimeException ex) {
-        // This handles "Student email exists" and "Template name exists"
+    public ResponseEntity<String> handleBadRequest(RuntimeException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }
