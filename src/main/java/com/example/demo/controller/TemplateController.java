@@ -33,4 +33,15 @@ public class TemplateController {
             @RequestBody CertificateTemplate template
     ) {
         return ResponseEntity.ok(
-                templateService.addTemplate(temp
+                templateService.addTemplate(template)
+        );
+    }
+
+    @GetMapping
+    @Operation(summary = "Get all templates")
+    public ResponseEntity<List<CertificateTemplate>> getAllTemplates() {
+        return ResponseEntity.ok(
+                templateService.getAllTemplates()
+        );
+    }
+}
