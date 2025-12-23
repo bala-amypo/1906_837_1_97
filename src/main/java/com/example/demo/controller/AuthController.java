@@ -25,57 +25,65 @@ public class AuthController {
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
 
-    // Requirement Section 6: Constructor injection only
-    public AuthController(UserService userService, JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
+    // ✅ Constructor injection (MANDATORY)
+    public AuthController(
+            UserService userService,
+            JwtUtil jwtUtil,
+            PasswordEncoder passwordEncoder
+    ) {
         this.userService = userService;
         this.jwtUtil = jwtUtil;
         this.passwordEncoder = passwordEncoder;
     }
 
+    // ========================= REGISTER =========================
     @PostMapping("/register")
     @Operation(summary = "Register a new user")
     public ResponseEntity<User> register(@RequestBody RegisterRequest request) {
-        // Section 7.1: Convert DTO to Entity and delegate to service
+
         User user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
                 .password(request.getPassword())
                 .role(request.getRole())
                 .build();
-        
+
         return ResponseEntity.ok(userService.register(user));
     }
 
+    // ========================= LOGIN =========================
     @PostMapping("/login")
     @Operation(summary = "User login to get JWT token")
     public ResponseEntity<?> login(@RequestBody AuthRequest request) {
-        // 1. Look up the user by email
+
         User user = userService.findByEmail(request.getEmail());
 
-        // 2. Validate the password using matches()
-        if (user != null && passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            
-            // 3. Build claim map exactly as required in Section 7.1
+        if (user != null && passwordEncoder.matches(
+                request.getPassword(),
+                user.getPassword()
+        )) {
+
+            // Build claims as per Helper PDF
             Map<String, Object> claims = new HashMap<>();
             claims.put("userId", user.getId());
             claims.put("email", user.getEmail());
             claims.put("role", user.getRole());
 
-            // 4. Generate the token
             String token = jwtUtil.generateToken(claims, user.getEmail());
 
-            // 5. Wrap in AuthResponse and return 200 OK
             AuthResponse response = new AuthResponse(
-                    token, 
-                    user.getId(), 
-                    user.getEmail(), 
+                    token,
+                    user.getId(),
+                    user.getEmail(),
                     user.getRole()
             );
-            
+
             return ResponseEntity.ok(response);
         }
 
-        // 6. Return 401 Unauthorized for invalid credentials
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        // ❗ EXACT message required by test cases
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body("Invalid email or password");
     }
 }
