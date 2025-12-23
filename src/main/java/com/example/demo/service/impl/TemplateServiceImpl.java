@@ -4,11 +4,14 @@ import com.example.demo.entity.CertificateTemplate;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.CertificateTemplateRepository;
 import com.example.demo.service.TemplateService;
+
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service
 public class TemplateServiceImpl implements TemplateService {
+
     private final CertificateTemplateRepository templateRepository;
 
     public TemplateServiceImpl(CertificateTemplateRepository templateRepository) {
@@ -17,9 +20,11 @@ public class TemplateServiceImpl implements TemplateService {
 
     @Override
     public CertificateTemplate addTemplate(CertificateTemplate template) {
+
         if (templateRepository.findByTemplateName(template.getTemplateName()).isPresent()) {
             throw new RuntimeException("Template name exists");
         }
+
         return templateRepository.save(template);
     }
 
