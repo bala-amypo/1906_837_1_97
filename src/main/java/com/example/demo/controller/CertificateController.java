@@ -14,25 +14,31 @@ public class CertificateController {
 
     private final CertificateService certificateService;
 
+    // ✅ Constructor injection only
     public CertificateController(CertificateService certificateService) {
         this.certificateService = certificateService;
     }
 
+    // ================= GENERATE CERTIFICATE =================
     @PostMapping("/generate/{studentId}/{templateId}")
     @Operation(summary = "Generate a certificate")
-    public ResponseEntity<Certificate> generateCertificate(@PathVariable Long studentId, @PathVariable Long templateId) {
-        return ResponseEntity.ok(certificateService.generateCertificate(studentId, templateId));
+    public ResponseEntity<Certificate> generateCertificate(
+            @PathVariable Long studentId,
+            @PathVariable Long templateId
+    ) {
+        return ResponseEntity.ok(
+                certificateService.generateCertificate(studentId, templateId)
+        );
     }
 
+    // ================= GET CERTIFICATE BY ID =================
     @GetMapping("/{certificateId}")
     @Operation(summary = "Get certificate by ID")
-    public ResponseEntity<Certificate> getCertificate(@PathVariable Long certificateId) {
-        return ResponseEntity.ok(certificateService.getCertificate(certificateId));
-    }
-
-    @GetMapping("/verify/code/{verificationCode}")
-    @Operation(summary = "Find certificate by verification code")
-    public ResponseEntity<Certificate> findByVerificationCode(@PathVariable String verificationCode) {
-        return ResponseEntity.ok(certificateService.findByVerificationCode(verificationCode));
+    public ResponseEntity<Certificate> getCertificate(
+            @PathVariable Long certificateId
+    ) {
+        return ResponseEntity.ok(
+                certificateService.getCertificate(certificateId)
+        );
     }
 }
