@@ -1,14 +1,14 @@
 package com.example.demo.service.impl;
 
-import com.example.demo.entity.Certificate;
-import com.example.demo.entity.VerificationLog;
-import com.example.demo.repository.CertificateRepository;
-import com.example.demo.repository.VerificationLogRepository;
+import com.example.demo.entity.*;
+import com.example.demo.repository.*;
 import com.example.demo.service.VerificationService;
+
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class VerificationServiceImpl implements VerificationService {
@@ -18,7 +18,8 @@ public class VerificationServiceImpl implements VerificationService {
 
     public VerificationServiceImpl(
             VerificationLogRepository logRepository,
-            CertificateRepository certificateRepository) {
+            CertificateRepository certificateRepository
+    ) {
         this.logRepository = logRepository;
         this.certificateRepository = certificateRepository;
     }
@@ -26,17 +27,19 @@ public class VerificationServiceImpl implements VerificationService {
     @Override
     public VerificationLog verifyCertificate(String code, String ipAddress) {
 
-        Certificate certificate =
-                certificateRepository.findByVerificationCode(code).orElse(null);
+        Optional<Certificate> certOpt =
+                certificateRepository.findByVerificationCode(code);
 
-        VerificationLog log = new VerificationLog();
-        log.setVerifiedAt(LocalDateTime.now());
-        log.setIpAddress(ipAddress);
+        VerificationLog log = VerificationLog.builder()
+                .verifiedAt(LocalDateTime.now())
+                .ipAddress(ipAddress)
+                .build();
 
-        if (certificate != null) {
-            log.setCertificate(certificate);
+        if (certOpt.isPresent()) {
+            log.setCertificate(certOpt.get());
             log.setStatus("SUCCESS");
         } else {
+            // Rule: Save log even if FAILED
             log.setStatus("FAILED");
         }
 
@@ -45,6 +48,14 @@ public class VerificationServiceImpl implements VerificationService {
 
     @Override
     public List<VerificationLog> getLogsByCertificate(Long certificateId) {
-        return logRepository.findByCertificateId(certificateId);
+
+        // Basic filter logic to return logs for a certificate
+        return logRepository.findAll()
+                .stream()
+                .filter(
+                        l -> l.getCertificate() != null
+                                && l.getCertificate().getId().equals(certificateId)
+                )
+                .toList();
     }
 }
