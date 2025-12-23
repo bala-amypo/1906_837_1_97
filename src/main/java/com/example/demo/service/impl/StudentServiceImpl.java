@@ -5,42 +5,27 @@ import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.StudentRepository;
 import com.example.demo.service.StudentService;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
 public class StudentServiceImpl implements StudentService {
-
     private final StudentRepository studentRepository;
-
-    // Requirement Section 6: Use Constructor Injection only
-    public StudentServiceImpl(StudentRepository studentRepository) {
-        this.studentRepository = studentRepository;
-    }
+    public StudentServiceImpl(StudentRepository studentRepository) { this.studentRepository = studentRepository; }
 
     @Override
     public Student addStudent(Student student) {
-        // Rule Section 6.2: Check for existing email AND rollNumber
         if (studentRepository.findByEmail(student.getEmail()).isPresent() || 
             studentRepository.findByRollNumber(student.getRollNumber()).isPresent()) {
-            
-            // CRITICAL: The automated tests look for this exact string fragment
             throw new RuntimeException("Student email exists");
         }
-        
         return studentRepository.save(student);
     }
 
     @Override
-    public List<Student> getAllStudents() {
-        // Requirement Section 6.2: Return all results from repository
-        return studentRepository.findAll();
-    }
+    public List<Student> getAllStudents() { return studentRepository.findAll(); }
 
     @Override
     public Student findById(Long id) {
-        // Rule Section 6.2: Throw exception if student does not exist
-        return studentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+        return studentRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Student not found"));
     }
 }
