@@ -19,3 +19,18 @@ public class Certificate {
 
     @ManyToOne
     @JoinColumn(name = "student_id")
+    private Student student;
+
+    @ManyToOne
+    @JoinColumn(name = "template_id")
+    private CertificateTemplate template;
+
+    private LocalDate issuedDate;
+
+    @Column(columnDefinition = "LONGTEXT") // Required for large Base64 QR strings
+    private String qrCodeUrl;
+
+    @Column(unique = true)
+    private String verificationCode;
+
+}
