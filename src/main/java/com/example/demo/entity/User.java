@@ -10,6 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,5 +23,6 @@ public class User {
     private String password;
 
     // Default value "STAFF" is handled in the Service layer as per PDF rules
-    private String role; 
+    private String role;
+
 }

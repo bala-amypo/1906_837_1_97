@@ -2,7 +2,9 @@ package com.example.demo.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
@@ -12,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Student {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,4 +30,5 @@ public class Student {
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
     @JsonIgnore // Prevents infinite recursion in JSON output
     private List<Certificate> certificates;
+
 }

@@ -10,6 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CertificateTemplate {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,4 +23,5 @@ public class CertificateTemplate {
     private String fontStyle;
 
     private String signatureName;
+
 }
