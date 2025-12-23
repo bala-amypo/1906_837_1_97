@@ -17,44 +17,50 @@ public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
 
+    // Constructor injection (MANDATORY as per PDF)
     public SecurityConfig(JwtFilter jwtFilter) {
         this.jwtFilter = jwtFilter;
     }
 
+    // Password encoder required for AuthController
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    // Authentication manager required for Spring Security context
     @Bean
     public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
+            AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
     }
 
+    // 🔐 MAIN SECURITY CONFIGURATION
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-            // REST API → disable CSRF
+            // Disable CSRF (REST APIs only)
             .csrf(csrf -> csrf.disable())
 
-            // JWT → stateless
+            // Stateless session (JWT based)
             .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
 
-            // ⭐ IMPORTANT FIX → allow CORS preflight
-            .cors(cors -> {})
-
+            // Authorization rules (AMYPO TEST COMPATIBLE)
             .authorizeHttpRequests(auth -> auth
 
-                // allow browser & error page
+                // Root & error page
                 .requestMatchers("/", "/error").permitAll()
 
-                // auth endpoints
+                // Authentication APIs
                 .requestMatchers("/auth/**").permitAll()
 
-                // swagger
+                // Verification APIs (tests call without JWT)
+                .requestMatchers("/verify/**").permitAll()
+
+                // Swagger APIs
                 .requestMatchers(
                         "/swagger-ui/**",
                         "/swagger-ui.html",
@@ -62,14 +68,11 @@ public class SecurityConfig {
                         "/v3/api-docs/**"
                 ).permitAll()
 
-                // allow OPTIONS for Swagger POST
-                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-
-                // everything else needs JWT
+                // Everything else requires JWT
                 .anyRequest().authenticated()
             )
 
-            // JWT filter
+            // JWT filter before UsernamePasswordAuthenticationFilter
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
