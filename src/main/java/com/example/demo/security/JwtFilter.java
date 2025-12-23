@@ -10,6 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -26,19 +27,15 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String path = request.getServletPath();
-        if (path.startsWith("/auth") || path.startsWith("/swagger") || path.startsWith("/v3/api-docs")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         String authHeader = request.getHeader("Authorization");
+
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             if (jwtUtil.validateToken(token)) {
                 Claims claims = jwtUtil.parseToken(token);
                 String email = claims.getSubject();
                 String role = claims.get("role", String.class);
+
                 if (email != null) {
                     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                             email, null, List.of(new SimpleGrantedAuthority("ROLE_" + role)));
