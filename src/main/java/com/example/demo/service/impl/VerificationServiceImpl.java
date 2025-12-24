@@ -23,12 +23,10 @@ public class VerificationServiceImpl implements VerificationService {
     public VerificationLog verifyCertificate(String verificationCode, String clientIp) {
         Optional<Certificate> certOpt = certificateRepository.findByVerificationCode(verificationCode);
         
-        String status = certOpt.isPresent() ? "SUCCESS" : "FAILED";
-        
         VerificationLog log = VerificationLog.builder()
                 .certificate(certOpt.orElse(null))
                 .verifiedAt(LocalDateTime.now())
-                .status(status)
+                .status(certOpt.isPresent() ? "SUCCESS" : "FAILED")
                 .ipAddress(clientIp)
                 .build();
                 
@@ -37,12 +35,9 @@ public class VerificationServiceImpl implements VerificationService {
 
     @Override
     public List<VerificationLog> getLogsByCertificate(Long certificateId) {
-        // Ensure certificate exists before fetching logs (Requirement 6.5)
         certificateRepository.findById(certificateId)
                 .orElseThrow(() -> new ResourceNotFoundException("Certificate not found"));
                 
-        // In a real app, you'd have a findByCertificate method in logRepository. 
-        // For the test helper, ensure your Repo supports this or filter the list.
         return logRepository.findAll().stream()
                 .filter(l -> l.getCertificate() != null && l.getCertificate().getId().equals(certificateId))
                 .toList();
