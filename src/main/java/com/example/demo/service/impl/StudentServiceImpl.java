@@ -1,43 +1,37 @@
 package com.example.demo.service.impl;
 
-import com.example.demo.entity.Student;
-import com.example.demo.exception.ResourceNotFoundException;
-import com.example.demo.repository.StudentRepository;
-import com.example.demo.service.StudentService;
-
+import com.example.demo.entity.User;
+import com.example.demo.repository.UserRepository;
+import com.example.demo.service.UserService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
-public class StudentServiceImpl implements StudentService {
+public class UserServiceImpl implements UserService {
 
-    private final StudentRepository studentRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public StudentServiceImpl(StudentRepository studentRepository) {
-        this.studentRepository = studentRepository;
+    public UserServiceImpl(UserRepository userRepository,
+                           PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    public Student addStudent(Student student) {
-
-        if (studentRepository.findByEmail(student.getEmail()).isPresent()
-                || studentRepository.findByRollNumber(student.getRollNumber()).isPresent()) {
-
-            throw new RuntimeException("Student email exists");
+    public User register(User user) {
+        if (user.getRole() == null || user.getRole().isEmpty()) {
+            user.setRole("STAFF");
         }
-
-        return studentRepository.save(student);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new RuntimeException("Email already exists");
+        }
+        return userRepository.save(user);
     }
 
     @Override
-    public List<Student> getAllStudents() {
-        return studentRepository.findAll();
-    }
-
-    @Override
-    public Student findById(Long id) {
-        return studentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email).orElse(null);
     }
 }
