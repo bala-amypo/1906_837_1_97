@@ -1,37 +1,19 @@
 package com.example.demo.entity;
+import jakarta.persistence.*;
+import lombok.*;
+import java.time.LocalDate;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Column;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Entity
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Entity @Table(name = "certificates")
+@Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class Certificate {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(unique = true, nullable = false)
-    private String verificationCode;
-
-    @Column(length = 1000)
-    private String qrCodeUrl;
-
-    @ManyToOne
+    @ManyToOne @JoinColumn(name = "student_id")
     private Student student;
-
-    @ManyToOne
+    @ManyToOne @JoinColumn(name = "template_id")
     private CertificateTemplate template;
+    private LocalDate issuedDate;
+    private String qrCodeUrl;
+    @Column(unique = true)
+    private String verificationCode;
 }
