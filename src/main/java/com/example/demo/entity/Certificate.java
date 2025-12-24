@@ -1,12 +1,18 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Column;
 
-import java.time.LocalDate;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "certificates")
 @Data
 @Builder
 @NoArgsConstructor
@@ -17,20 +23,15 @@ public class Certificate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false)
+    private String verificationCode;
+
+    @Column(length = 1000)
+    private String qrCodeUrl;
+
     @ManyToOne
-    @JoinColumn(name = "student_id")
     private Student student;
 
     @ManyToOne
-    @JoinColumn(name = "template_id")
     private CertificateTemplate template;
-
-    private LocalDate issuedDate;
-
-    @Column(columnDefinition = "LONGTEXT") // Required for large Base64 QR strings
-    private String qrCodeUrl;
-
-    @Column(unique = true)
-    private String verificationCode;
-
 }
