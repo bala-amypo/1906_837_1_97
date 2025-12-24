@@ -2,6 +2,7 @@ package com.example.demo.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.Map;
@@ -40,5 +41,10 @@ public class JwtUtil {
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token);
+    }
+
+    // ✅ REQUIRED BY JwtFilter & TESTS
+    public String getEmailFromToken(String token) {
+        return parseToken(token).getBody().getSubject();
     }
 }
