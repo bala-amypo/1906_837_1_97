@@ -1,27 +1,13 @@
-package com.example.demo.service.impl;
-
-import com.example.demo.entity.*;
-import com.example.demo.repository.*;
-import com.example.demo.service.VerificationService;
-
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
 @Service
 public class VerificationServiceImpl implements VerificationService {
 
-    private final VerificationLogRepository logRepository;
     private final CertificateRepository certificateRepository;
+    private final VerificationLogRepository logRepository;
 
-    public VerificationServiceImpl(
-            VerificationLogRepository logRepository,
-            CertificateRepository certificateRepository
-    ) {
-        this.logRepository = logRepository;
+    public VerificationServiceImpl(CertificateRepository certificateRepository,
+                                   VerificationLogRepository logRepository) {
         this.certificateRepository = certificateRepository;
+        this.logRepository = logRepository;
     }
 
     @Override
@@ -39,7 +25,6 @@ public class VerificationServiceImpl implements VerificationService {
             log.setCertificate(certOpt.get());
             log.setStatus("SUCCESS");
         } else {
-            // Rule: Save log even if FAILED
             log.setStatus("FAILED");
         }
 
@@ -48,14 +33,9 @@ public class VerificationServiceImpl implements VerificationService {
 
     @Override
     public List<VerificationLog> getLogsByCertificate(Long certificateId) {
-
-        // Basic filter logic to return logs for a certificate
-        return logRepository.findAll()
-                .stream()
-                .filter(
-                        l -> l.getCertificate() != null
-                                && l.getCertificate().getId().equals(certificateId)
-                )
+        return logRepository.findAll().stream()
+                .filter(l -> l.getCertificate() != null
+                        && l.getCertificate().getId().equals(certificateId))
                 .toList();
     }
 }
