@@ -1,30 +1,9 @@
-package com.example.demo.entity;
+package com.example.demo.service;
 
-import jakarta.persistence.*;
-import lombok.*;
+import com.example.demo.entity.VerificationLog;
+import java.util.List;
 
-import java.time.LocalDateTime;
-
-@Entity
-@Table(name = "verification_logs")
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class VerificationLog {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "certificate_id")
-    private Certificate certificate;
-
-    private LocalDateTime verifiedAt;
-
-    private String status; // "SUCCESS" or "FAILED"
-
-    private String ipAddress;
-
+public interface VerificationService {
+    VerificationLog verify(String code, String ip);
+    List<VerificationLog> logs();
 }

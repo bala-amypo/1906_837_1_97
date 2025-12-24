@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "users")
 @Data
 @Builder
 @NoArgsConstructor
@@ -22,7 +21,5 @@ public class User {
 
     private String password;
 
-    // Default value "STAFF" is handled in the Service layer as per PDF rules
     private String role;
-
 }

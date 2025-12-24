@@ -10,3 +10,4 @@ public interface VerificationService {
 
     List<VerificationLog> getLogsByCertificate(Long certificateId);
 }
+
