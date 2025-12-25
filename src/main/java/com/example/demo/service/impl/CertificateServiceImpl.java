@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
 import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -30,40 +31,42 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public Certificate generateCertificate(Long studentId, Long templateId) {
-        Student student = studentRepository.findById(studentId)
+        Student s = studentRepository.findById(studentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
-        CertificateTemplate template = templateRepository.findById(templateId)
+        CertificateTemplate t = templateRepository.findById(templateId)
                 .orElseThrow(() -> new ResourceNotFoundException("Template not found"));
 
-        // VC- prefix required for Test 28
         String vCode = "VC-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-        String qrBase64;
-
+        String qrUrl = "";
         try {
             QRCodeWriter writer = new QRCodeWriter();
-            BitMatrix bitMatrix = writer.encode(vCode, BarcodeFormat.QR_CODE, 200, 200);
+            BitMatrix matrix = writer.encode(vCode, BarcodeFormat.QR_CODE, 200, 200);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            MatrixToImageWriter.writeToStream(bitMatrix, "PNG", bos);
-            // Prefix required for Test 29
-            qrBase64 = "data:image/png;base64," + Base64.getEncoder().encodeToString(bos.toByteArray());
-        } catch (Exception e) {
-            throw new RuntimeException("QR Generation failed");
-        }
+            MatrixToImageWriter.writeToStream(matrix, "PNG", bos);
+            qrUrl = "data:image/png;base64," + Base64.getEncoder().encodeToString(bos.toByteArray());
+        } catch (Exception e) { throw new RuntimeException("QR Generation failed"); }
 
-        Certificate cert = Certificate.builder()
-                .student(student)
-                .template(template)
-                .issuedDate(LocalDate.now())
-                .verificationCode(vCode)
-                .qrCodeUrl(qrBase64)
-                .build();
-
-        return certificateRepository.save(cert);
+        return certificateRepository.save(Certificate.builder()
+                .student(s).template(t).issuedDate(LocalDate.now())
+                .verificationCode(vCode).qrCodeUrl(qrUrl).build());
     }
 
     @Override
     public Certificate getCertificate(Long id) {
         return certificateRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Certificate not found"));
+    }
+
+    @Override
+    public Certificate findByVerificationCode(String code) {
+        return certificateRepository.findByVerificationCode(code)
+                .orElseThrow(() -> new ResourceNotFoundException("Certificate not found"));
+    }
+
+    @Override
+    public List<Certificate> findByStudentId(Long studentId) {
+        Student s = studentRepository.findById(studentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+        return certificateRepository.findByStudent(s);
     }
 }
