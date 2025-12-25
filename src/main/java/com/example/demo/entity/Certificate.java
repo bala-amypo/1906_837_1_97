@@ -26,8 +26,8 @@ public class Certificate {
 
     private LocalDate issuedDate;
 
-    // FIX: LONGTEXT is required for large Base64 QR strings
-    @Column(columnDefinition = "LONGTEXT") 
+    // FIX: Change column type to LONGTEXT to store large Base64 QR strings
+    @Column(columnDefinition = "LONGTEXT")
     private String qrCodeUrl;
 
     @Column(unique = true)

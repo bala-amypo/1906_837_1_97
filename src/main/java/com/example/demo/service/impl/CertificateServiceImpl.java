@@ -36,6 +36,7 @@ public class CertificateServiceImpl implements CertificateService {
         CertificateTemplate t = templateRepository.findById(templateId)
                 .orElseThrow(() -> new ResourceNotFoundException("Template not found"));
 
+        // VC- prefix required for Test 28
         String vCode = "VC-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         String qrUrl = "";
         try {
@@ -43,8 +44,11 @@ public class CertificateServiceImpl implements CertificateService {
             BitMatrix matrix = writer.encode(vCode, BarcodeFormat.QR_CODE, 200, 200);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             MatrixToImageWriter.writeToStream(matrix, "PNG", bos);
+            // data:image prefix required for Test 29
             qrUrl = "data:image/png;base64," + Base64.getEncoder().encodeToString(bos.toByteArray());
-        } catch (Exception e) { throw new RuntimeException("QR Generation failed"); }
+        } catch (Exception e) { 
+            throw new RuntimeException("QR Generation failed"); 
+        }
 
         return certificateRepository.save(Certificate.builder()
                 .student(s).template(t).issuedDate(LocalDate.now())
