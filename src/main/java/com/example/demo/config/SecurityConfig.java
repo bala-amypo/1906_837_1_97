@@ -29,13 +29,24 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // Disable CSRF for REST APIs
+            .csrf(csrf -> csrf.disable()) // Requirement 8.3: Disable CSRF
+            
+            // MANDATORY FOR CLOUD IDE: Allows the preview to load inside the Amypo iframe
+            .headers(headers -> headers.frameOptions(frame -> frame.disable()))
+            
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            
             .authorizeHttpRequests(auth -> auth
-                // Requirement 8.3: Permit all auth and swagger paths
+                // Solve "Access Denied": Permit root and the Whitelabel error path
+                .requestMatchers("/", "/error").permitAll()
+                
+                // Requirement 8.3: Permit all auth paths
                 .requestMatchers("/auth/**").permitAll()
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui/index.html").permitAll()
-                // All other paths (students, templates, etc.) require authentication
+                
+                // Requirement 8.3: Permit all swagger paths
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                
+                // All other paths (students, templates, certificates, etc.) require authentication
                 .anyRequest().authenticated()
             );
 
