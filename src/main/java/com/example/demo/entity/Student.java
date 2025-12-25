@@ -26,6 +26,6 @@ public class Student {
     private String rollNumber;
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
-    @JsonIgnore // CRITICAL: This stops the recursion in Swagger and REST responses
+    @JsonIgnore  // <--- THIS FIXES THE LOOP ERROR
     private List<Certificate> certificates;
 }
